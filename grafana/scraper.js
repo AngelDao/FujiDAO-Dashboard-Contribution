@@ -13,6 +13,7 @@ const main = async (fromLast) => {
   }
 
   let stats;
+  let stats;
   if (provider) {
     try {
       console.log("scraper started");
