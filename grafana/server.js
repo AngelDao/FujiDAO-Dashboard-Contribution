@@ -44,10 +44,14 @@ client.connect(async (err, db) => {
     } else {
       const lastBlock = (await EPService.lastBlock()) + 1;
       const eventPoints = await scraper(lastBlock);
-      await EPService.addMany(eventPoints);
-      const data0 = await EPService.formatGrafana();
-      const metrics = data0.filter((e) => targets.includes(e.target));
-      res.send(metrics);
+      if (eventPoints.length) {
+        await EPService.addMany(eventPoints);
+        const data0 = await EPService.formatGrafana();
+        const metrics = data0.filter((e) => targets.includes(e.target));
+        res.send(metrics);
+      } else {
+        console.log("noevents");
+      }
     }
   });
 
