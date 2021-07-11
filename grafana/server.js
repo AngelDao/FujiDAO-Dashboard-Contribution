@@ -2,6 +2,7 @@ const express = require("express");
 const { scraper } = require("./scraper");
 const EPService = require("./services/EventPoints");
 const RPService = require("./services/RatePoints");
+const dataFiller = require("./utils/dataFiller");
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 const app = express();
@@ -36,22 +37,20 @@ client.connect(async (err, db) => {
     if (flag) {
       const [bundle, isOld] = await RPService.lastRow();
       if (isOld) {
-        RPService.formatGrafana(db);
+        await RPService.formatGrafana(db);
       }
       const metrics = bundle.rates.filter((e) => targets.includes(e.target));
       console.log(metrics);
-      res.send(bundle.rates.filter((e) => targets.includes(e.target)));
+      res.send(
+        dataFiller(bundle.rates.filter((e) => targets.includes(e.target)))
+      );
     } else {
       const lastBlock = (await EPService.lastBlock()) + 1;
       const eventPoints = await scraper(lastBlock);
-      if (eventPoints.length) {
-        await EPService.addMany(eventPoints);
-        const data0 = await EPService.formatGrafana();
-        const metrics = data0.filter((e) => targets.includes(e.target));
-        res.send(metrics);
-      } else {
-        console.log("noevents");
-      }
+      await EPService.addMany(eventPoints);
+      const data0 = await EPService.formatGrafana();
+      const metrics = data0.filter((e) => targets.includes(e.target));
+      res.send(dataFiller(metrics));
     }
   });
 
