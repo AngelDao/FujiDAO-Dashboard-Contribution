@@ -8,8 +8,7 @@ var jsonParser = bodyParser.json();
 const app = express();
 
 const { MongoClient } = require("mongodb");
-const uri =
-  "mongodb+srv://angeldao:ImWSfT8h9IFfS9Nk@cluster0.nsht4.mongodb.net/data-fetch?retryWrites=true&w=majority";
+const uri = process.env.DB_URI;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
